@@ -8,6 +8,13 @@ app.get('/', (req, res) => {
 })
 
 app.get('/sendMessage', (req, res) => {
+    const { to, from, content } = req.body
+
+
+    if (!to || !content) {
+        return res.status(400).json({ success: "true", error: "Missing fields" })
+    }
+
 
     console.log(req, "this is request")
 })
