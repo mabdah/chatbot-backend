@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000
 const API_BASE_URL = process.env.API_BASE_URL;
 const PROJECT_ID = process.env.PROJECT_ID;
 const API_KEY = process.env.API_KEY;
-const SEND_MESSAGE_URL = `${API_BASE_URL}/projects/${PROJECT_ID}/message/send`
+const SEND_MESSAGE_URL = `${API_BASE_URL}/projects/${PROJECT_ID}/messages/send`
 app.get('/', (req, res) => {
     res.send('Hello World')
 })
@@ -48,7 +48,7 @@ app.post('/sendMessage', async (req, res) => {
 
     } catch (error) {
 
-        console.error('Error sending message:', error.response ? error.response.data : error.message);
+        console.log('Error sending message', error);
 
     }
 
