@@ -6,8 +6,8 @@ const PORT = 5000
 app.get('/', (req, res) => {
     res.send('Hello World')
 })
-
-app.get('/sendMessage', (req, res) => {
+let chatMessages = [];
+app.post('/sendMessage', (req, res) => {
     const { to, from, content } = req.body
 
 
@@ -15,8 +15,11 @@ app.get('/sendMessage', (req, res) => {
         return res.status(400).json({ success: "true", error: "Missing fields" })
     }
 
+    chatMessages.push({ to, from, content, timestamp: new Date() });
 
-    console.log(req, "this is request")
+    console.log("Message received and stored:", { to, from, content });
+
+    res.json({ success: true, message: "Message delivered to user" });
 })
 
 app.listen(PORT, () => {
