@@ -16,6 +16,7 @@ app.get('/', (req, res) => {
     res.send('Hello World')
 })
 app.post('/sendMessage', async (req, res) => {
+    console.log("hello")
     const { to, from, content } = req.body
     if (!to || !content) {
         return res.status(400).json({
