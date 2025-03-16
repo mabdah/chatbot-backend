@@ -7,6 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+const PORT = process.env.PORT || 3000
 const API_BASE_URL = process.env.API_BASE_URL;
 const PROJECT_ID = process.env.PROJECT_ID;
 const API_KEY = process.env.API_KEY;
