@@ -26,8 +26,9 @@ app.post('/sendMessage', async (req, res) => {
         });
     }
 
+    console.log(`Received request to send message to chat_id: ${chat_id}`);
+
     try {
-        // Sending a single message (no loop here)
         const response = await axios.post(
             SEND_MESSAGE_URL,
             {
@@ -38,13 +39,15 @@ app.post('/sendMessage', async (req, res) => {
             { headers: { "Content-Type": "application/json" } }
         );
 
+        console.log(`API response status: ${response.status}`);
+
         if (response.status === 200) {
+            console.log(`Message sent successfully to ${chat_id}`);
             return res.status(200).json({
                 status: 'success',
-                // Optionally, you can return other response data here like message_id, etc.
             });
         } else {
-            // Handle unexpected API error responses
+            console.log(`Failed to send the message. HTTP ${response.status}`);
             return res.status(500).json({
                 status: 'error',
                 error_message: `Failed to send the message. HTTP ${response.status}`
@@ -52,14 +55,14 @@ app.post('/sendMessage', async (req, res) => {
         }
 
     } catch (error) {
-        console.log('Error sending message:', error);
+        console.error('Error sending message:', error);
+
         return res.status(500).json({
             status: 'error',
             error_message: 'An error occurred while sending the message.'
         });
     }
 });
-
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
