@@ -15,28 +15,33 @@ const SEND_MESSAGE_URL = `${API_BASE_URL}/projects/${PROJECT_ID}/messages/send`
 app.get('/', (req, res) => {
     res.send('Hello World')
 })
-app.post('/sendMessage', (req, res) => {
-    const { chat_id, text } = req.body
+app.post('/sendMessage', async (req, res) => {
+    const { chat_id, text } = req.body;
+
+    // Check for missing fields
     if (!chat_id || !text) {
         return res.status(400).json({
             status: 'error',
             error_message: 'Missing required fields: chat_id or text.'
         });
     }
+
     try {
-        const response = axios.post(
-            SEND_MESSAGE_URL, {
-            api_key: API_KEY,
-            to_number: chat_id,
-            content: text
-        },
+        // Sending a single message (no loop here)
+        const response = await axios.post(
+            SEND_MESSAGE_URL,
+            {
+                api_key: API_KEY,
+                to_number: chat_id,
+                content: text
+            },
             { headers: { "Content-Type": "application/json" } }
-        )
+        );
+
         if (response.status === 200) {
             return res.status(200).json({
                 status: 'success',
-                // message_id: response.data.id,
-                // sent_at: response.data.created_at
+                // Optionally, you can return other response data here like message_id, etc.
             });
         } else {
             // Handle unexpected API error responses
@@ -45,10 +50,16 @@ app.post('/sendMessage', (req, res) => {
                 error_message: `Failed to send the message. HTTP ${response.status}`
             });
         }
+
     } catch (error) {
-        console.log('Error sending message', error);
+        console.log('Error sending message:', error);
+        return res.status(500).json({
+            status: 'error',
+            error_message: 'An error occurred while sending the message.'
+        });
     }
-})
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
