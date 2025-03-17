@@ -15,7 +15,7 @@ const SEND_MESSAGE_URL = `${API_BASE_URL}/projects/${PROJECT_ID}/messages/send`
 app.get('/', (req, res) => {
     res.send('Hello World')
 })
-app.post('/sendMessage', async (req, res) => {
+app.post('/sendMessage', (req, res) => {
     const { chat_id, text } = req.body;
 
     // Check for missing fields
@@ -29,7 +29,7 @@ app.post('/sendMessage', async (req, res) => {
     console.log(`Received request to send message to chat_id: ${chat_id}`);
 
     try {
-        const response = await axios.post(
+        const response = axios.post(
             SEND_MESSAGE_URL,
             {
                 api_key: API_KEY,
