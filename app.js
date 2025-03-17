@@ -15,7 +15,7 @@ const SEND_MESSAGE_URL = `${API_BASE_URL}/projects/${PROJECT_ID}/messages/send`
 app.get('/', (req, res) => {
     res.send('Hello World')
 })
-app.post('/sendMessage', async (req, res) => {
+app.post('/sendMessage', (req, res) => {
     const { chat_id, text } = req.body
     if (!chat_id || !text) {
         return res.status(400).json({
@@ -24,7 +24,7 @@ app.post('/sendMessage', async (req, res) => {
         });
     }
     try {
-        const response = await axios.post(
+        const response = axios.post(
             SEND_MESSAGE_URL, {
             api_key: API_KEY,
             to_number: chat_id,
