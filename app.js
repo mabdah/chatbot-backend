@@ -16,20 +16,19 @@ app.get('/', (req, res) => {
     res.send('Hello World')
 })
 app.post('/sendMessage', async (req, res) => {
-    console.log("hello")
-    const { to, from, content } = req.body
-    if (!to || !content) {
+    const { chat_id, text } = req.body
+    if (!chat_id || !text) {
         return res.status(400).json({
             status: 'error',
-            error_message: 'Missing required fields: to or content.'
+            error_message: 'Missing required fields: chat_id or text.'
         });
     }
     try {
         const response = await axios.post(
             SEND_MESSAGE_URL, {
             api_key: API_KEY,
-            to_number: to,
-            content: content
+            to_number: chat_id,
+            content: text
         },
             { headers: { "Content-Type": "application/json" } }
         )
@@ -46,15 +45,9 @@ app.post('/sendMessage', async (req, res) => {
                 error_message: `Failed to send the message. HTTP ${response.status}`
             });
         }
-
     } catch (error) {
-
         console.log('Error sending message', error);
-
     }
-
-
-
 })
 
 app.listen(PORT, () => {
