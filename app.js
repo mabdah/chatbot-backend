@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
 })
 app.post('/sendMessage', (req, res) => {
     const { message, } = req.body;
-    console.log(req.body, "object78")
+    console.log(message, "object78")
     try {
         res.json({ success: true, })
     } catch (error) {
