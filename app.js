@@ -4,51 +4,55 @@ const cors = require("cors");
 
 const app = express();
 app.use(express.json());
+
+// CORS Configuration
 const corsOptions = {
-    origin: '*',  // Allow requests from this origin
+    origin: '*',  // Allow requests from any origin
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
 };
-
 app.use(cors(corsOptions));
 
 const PORT = process.env.PORT || 3000;
 
-// Endpoint for serving SSE events to the frontend
+// Store connected SSE clients
+let clients = [];
+
+// ✅ SSE Events Endpoint
 app.get('/events', (req, res) => {
-    // Set the correct headers for SSE
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    // Function to keep the connection alive by sending a comment every 15 seconds
+    // Add client to the list
+    clients.push(res);
+
+    // Keep connection alive
     const keepAlive = setInterval(() => {
-        res.write(': keep-alive\n\n'); // Send a comment to keep the connection open
+        res.write(': keep-alive\n\n');
     }, 15000);
 
-    // Cleanup when the connection is closed
+    // Cleanup when connection closes
     req.on('close', () => {
         clearInterval(keepAlive);
+        clients = clients.filter(client => client !== res);
         res.end();
     });
 });
 
-// Endpoint for receiving the message and sending it via SSE
 app.post('/sendMessage', (req, res) => {
     const { message } = req.body;
     console.log(message, "received in backend");
 
-    try {
-        // Broadcasting the message to all connected SSE clients
-        // Note: Normally, you'd have a way to store clients and send messages to specific ones
-        res.write(`data: ${JSON.stringify({ message })}\n\n`);  // Send the message to the client via SSE
-        res.json({ success: true });
-    } catch (error) {
-        console.error("SSE error:", error);
-        res.status(500).json({ error: "Failed to send message via SSE" });
-    }
+    // Broadcast message to all connected SSE clients
+    clients.forEach(client => {
+        client.write(`data: ${JSON.stringify({ message })}\n\n`);
+    });
+
+    res.json({ success: true });
 });
 
+// Start Server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
