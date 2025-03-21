@@ -11,6 +11,12 @@ const PORT = process.env.PORT || 3000;
 const SOCKET_SERVER_URL = 'http://localhost:3001'; // WebSocket server URL
 
 const socket = io(SOCKET_SERVER_URL, {
+    cors: {
+        origin: "*", // Allow the frontend origin
+        methods: ["GET", "POST"],
+        allowedHeaders: ["Content-Type"],
+        credentials: true
+    },
     transports: ['websocket']
 });
 
