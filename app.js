@@ -42,13 +42,10 @@ app.post('/sendMessage', (req, res) => {
     console.log(message, "object78");
 
     try {
-        if (socket.connected) {
-            socket.emit('message', message); // Emit message to WebSocket server
-            res.json({ success: true });
-        } else {
-            console.error('Socket is not connected');
-            res.status(500).json({ error: "Socket is not connected" });
-        }
+
+        socket.emit('message', message); // Emit message to WebSocket server
+        res.json({ success: true });
+
     } catch (error) {
         console.error("WebSocket error:", error);
         res.status(500).json({ error: "WebSocket connection failed" });
