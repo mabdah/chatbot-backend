@@ -43,7 +43,7 @@ app.post('/sendMessage', (req, res) => {
 
     try {
 
-        socket.emit('message', message); // Emit message to WebSocket server
+        socket.emit('user-message', message); // Emit message to WebSocket server
         res.json({ success: true });
 
     } catch (error) {
