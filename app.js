@@ -21,14 +21,12 @@ app.post('/sendMessage', (req, res) => {
     const { message } = req.body;
     console.log(message, "object78");
 
-    // Emit the received message to all WebSocket clients
-    socket.emit('message', message); // Emit message to WebSocket server
-
-    try {
+    if (socket.connected) {
+        socket.emit('message', message); // Emit message to WebSocket server
         res.json({ success: true });
-    } catch (error) {
-        console.error("Error:", error);
-        return res.status(500).json({ error: JSON.stringify(error) });
+    } else {
+        console.error("WebSocket not connected");
+        res.status(500).json({ error: "WebSocket connection failed" });
     }
 });
 
