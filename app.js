@@ -1,59 +1,45 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const io = require("socket.io-client");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 const PORT = process.env.PORT || 3000;
-const SOCKET_SERVER_URL = 'http://localhost:3001'; // WebSocket server URL
 
-const socket = io(SOCKET_SERVER_URL, {
-    cors: {
-        origin: "*", // Allow the frontend origin
-        methods: ["GET", "POST"],
-        allowedHeaders: ["Content-Type"],
-        credentials: true
-    },
-    transports: ['websocket']
+// Endpoint for serving SSE events to the frontend
+app.get('/events', (req, res) => {
+    // Set the correct headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Function to keep the connection alive by sending a comment every 15 seconds
+    const keepAlive = setInterval(() => {
+        res.write(': keep-alive\n\n'); // Send a comment to keep the connection open
+    }, 15000);
+
+    // Cleanup when the connection is closed
+    req.on('close', () => {
+        clearInterval(keepAlive);
+        res.end();
+    });
 });
 
-// Listen for connection errors or timeouts
-socket.on('connect_error', (error) => {
-    console.error('Socket connection error:', error);
-});
-
-socket.on('connect_timeout', () => {
-    console.error('Socket connection timeout');
-});
-
-socket.on('disconnect', (reason) => {
-    console.error(`Socket disconnected: ${reason}`);
-});
-socket.on('connect', () => {
-    console.log('Connected to the WebSocket server');
-});
-
-
-app.get('/', (req, res) => {
-    res.send('Hello World');
-});
-
+// Endpoint for receiving the message and sending it via SSE
 app.post('/sendMessage', (req, res) => {
     const { message } = req.body;
-    console.log(message, "object78");
+    console.log(message, "received in backend");
 
     try {
-
-        socket.emit('user-message', message);
-        // Emit message to WebSocket server
+        // Broadcasting the message to all connected SSE clients
+        // Note: Normally, you'd have a way to store clients and send messages to specific ones
+        res.write(`data: ${JSON.stringify({ message })}\n\n`);  // Send the message to the client via SSE
         res.json({ success: true });
-
     } catch (error) {
-        console.error("WebSocket error:", error);
-        res.status(500).json({ error: "WebSocket connection failed" });
+        console.error("SSE error:", error);
+        res.status(500).json({ error: "Failed to send message via SSE" });
     }
 });
 
