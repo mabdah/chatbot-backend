@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const socketIoClient = require("socket.io-client");
+const io = require("socket.io-client");
 
 const app = express();
 app.use(express.json());
@@ -10,7 +10,9 @@ app.use(cors());
 const PORT = process.env.PORT || 3000;
 const SOCKET_SERVER_URL = 'http://localhost:3001'; // WebSocket server URL
 
-const socket = socketIoClient(SOCKET_SERVER_URL);
+const socket = io(SOCKET_SERVER_URL, {
+    transports: ['websocket']
+});
 
 // Listen for connection errors or timeouts
 socket.on('connect_error', (error) => {
