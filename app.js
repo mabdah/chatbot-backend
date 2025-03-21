@@ -25,7 +25,7 @@ app.post('/sendMessage', (req, res) => {
         socket.emit('message', message); // Emit message to WebSocket server
         res.json({ success: true });
     } else {
-        console.error("WebSocket not connected");
+        console.error("WebSocket not connected", error);
         res.status(500).json({ error: "WebSocket connection failed" });
     }
 });
