@@ -32,6 +32,10 @@ socket.on('connect_timeout', () => {
 socket.on('disconnect', (reason) => {
     console.error(`Socket disconnected: ${reason}`);
 });
+socket.on('connect', () => {
+    console.log('Connected to the WebSocket server');
+});
+
 
 app.get('/', (req, res) => {
     res.send('Hello World');
