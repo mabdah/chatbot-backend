@@ -1,4 +1,3 @@
-// server.js
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -13,6 +12,19 @@ const SOCKET_SERVER_URL = 'http://localhost:3001'; // WebSocket server URL
 
 const socket = socketIoClient(SOCKET_SERVER_URL);
 
+// Listen for connection errors or timeouts
+socket.on('connect_error', (error) => {
+    console.error('Socket connection error:', error);
+});
+
+socket.on('connect_timeout', () => {
+    console.error('Socket connection timeout');
+});
+
+socket.on('disconnect', (reason) => {
+    console.error(`Socket disconnected: ${reason}`);
+});
+
 app.get('/', (req, res) => {
     res.send('Hello World');
 });
@@ -21,11 +33,16 @@ app.post('/sendMessage', (req, res) => {
     const { message } = req.body;
     console.log(message, "object78");
 
-    if (socket.connected) {
-        socket.emit('message', message); // Emit message to WebSocket server
-        res.json({ success: true });
-    } else {
-        console.error("WebSocket not connected", error);
+    try {
+        if (socket.connected) {
+            socket.emit('message', message); // Emit message to WebSocket server
+            res.json({ success: true });
+        } else {
+            console.error('Socket is not connected');
+            res.status(500).json({ error: "Socket is not connected" });
+        }
+    } catch (error) {
+        console.error("WebSocket error:", error);
         res.status(500).json({ error: "WebSocket connection failed" });
     }
 });
