@@ -42,8 +42,10 @@ app.post('/sendMessage', (req, res) => {
     console.log(message, "object78");
 
     try {
-
-        socket.emit('user-message', message); // Emit message to WebSocket server
+        socket.on("connection", () => {
+            socket.emit('user-message', message);
+        })
+        // Emit message to WebSocket server
         res.json({ success: true });
 
     } catch (error) {
