@@ -15,7 +15,10 @@ app.use(cors(corsOptions));
 
 const PORT = process.env.PORT || 3000;
 
+app.post('/', (req, res) => {
+    console.log("hello world");
 
+});
 app.post('/sendMessage', (req, res) => {
     const { message } = req.body;
     console.log(message, "received in backend");
