@@ -1,44 +1,57 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const io = require("socket.io-client");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 const PORT = process.env.PORT || 3000;
+const SOCKET_SERVER_URL = 'http://localhost:3001'; // WebSocket server URL
 
-app.get("/", (req, res) => {
-    res.send("Hello World");
+const socket = io(SOCKET_SERVER_URL, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+        allowedHeaders: ["Content-Type"],
+        credentials: true
+    },
+    transports: ['websocket']
 });
 
-let storedMessage = ""; // Global variable to store the message
+socket.on('connect', () => {
+    console.log('Connected to the WebSocket server');
+});
 
-app.post("/sendMessage", (req, res) => {
+socket.on('message', (message) => {
+    console.log('Message received on the client:', message);  // Log the message
+});
+
+socket.on("connection_error", (err) => {
+    console.log(err.req);      // the request object
+    console.log(err.code);     // the error code, for example 1
+    console.log(err.message);  // the error message, for example "Session ID unknown"
+    console.log(err.context);  // some additional error context
+});
+
+app.get('/', (req, res) => {
+    res.send('Hello World');
+});
+
+app.post('/sendMessage', (req, res) => {
     const { message } = req.body;
-
-    if (!message) {
-        return res.status(400).json({ error: "Message is required" });
-    }
-
-    storedMessage = message; // Store the message
-    console.log("Message received:", storedMessage);
+    console.log("Received message in POST route:", message); // Log the message
 
     try {
-        res.json({ success: true, value: storedMessage });
-    } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ error: "Connection failed" });
-    }
-});
+        socket.emit('user-message', message); // Emit the message to the WebSocket server
+        console.log("Message emitted to WebSocket server");
 
-app.get("/getMessage", (req, res) => {
-    console.log(storedMessage, "storedmessage")
-    try {
-        res.json({ success: true, value: storedMessage });
+        res.json({ success: true });
+
     } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ error: "Connection failed" });
+        console.error("WebSocket error:", error);
+        res.status(500).json({ error: "WebSocket connection failed" });
     }
 });
 
