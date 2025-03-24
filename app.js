@@ -9,20 +9,11 @@ app.use(express.json());
 // 🔹 Global CORS Middleware
 app.use(cors({
     origin: "*",  // Allow requests from any domain
-    methods: ["GET", "POST", "OPTIONS"],  // Allowed HTTP methods
-    allowedHeaders: ["Content-Type"],  // Allowed headers
+    methods: ["GET", "POST"],  // Only allow GET and POST methods
+    allowedHeaders: ["Content-Type"],  // Allow only Content-Type header
+    preflightContinue: false, // Don't manually handle preflight requests
+    optionsSuccessStatus: 200,  // Send a successful response for OPTIONS requests
 }));
-
-const PORT = process.env.PORT || 3000;
-const TELERIVET_INCOMING_URL = "https://api.telerivet.com/gateway/PNddded6f1601b45f8/446f0f6b8b/incoming";
-
-// 🔹 Explicitly Handle OPTIONS Requests for /send and /getMessage
-app.options(["/send", "/getMessage"], (req, res) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-    res.status(200).send();  // Explicitly return 200 OK
-});
 
 // 🔹 Root Route
 app.get("/", (req, res) => {
@@ -101,6 +92,7 @@ app.get("/getMessage", (req, res) => {
 });
 
 // 🔹 Start the Express Server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
 });
