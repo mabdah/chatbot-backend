@@ -35,7 +35,9 @@ app.post("/sendMessage", (req, res) => {
 app.get("/getMessage", (req, res) => {
     console.log(storedMessage, "storedmessage")
     try {
-        res.json({ success: true, value: storedMessage });
+        if (storedMessage) {
+            res.json({ success: true, value: storedMessage });
+        }
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ error: "Connection failed" });
