@@ -6,31 +6,35 @@ const axios = require("axios");
 const app = express();
 app.use(express.json());
 
-// 🔹 Global CORS Middleware (Handles Preflight Requests)
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");  // Allow requests from any domain
-    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");  // Allowed HTTP methods
-    res.header("Access-Control-Allow-Headers", "Content-Type");  // Allowed headers
-
-    if (req.method === "OPTIONS") {
-        return res.status(200).send();  // Respond to preflight requests
-    }
-
-    next();
-});
+// 🔹 Global CORS Middleware
+app.use(cors({
+    origin: "*",  // Allow requests from any domain
+    methods: ["GET", "POST", "OPTIONS"],  // Allowed HTTP methods
+    allowedHeaders: ["Content-Type"],  // Allowed headers
+}));
 
 const PORT = process.env.PORT || 3000;
 const TELERIVET_INCOMING_URL = "https://api.telerivet.com/gateway/PNddded6f1601b45f8/446f0f6b8b/incoming";
+
+// 🔹 Explicitly Handle OPTIONS Requests for /send and /getMessage
+app.options(["/send", "/getMessage"], (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    res.status(200).send();  // Explicitly return 200 OK
+});
 
 // 🔹 Root Route
 app.get("/", (req, res) => {
     res.send("Hello, ChatBot Backend is running!");
 });
 
-let storedMessage = "";  // Global variable to store messages
+let storedMessage = "";  // Global variable to store the message
 
 // 🔹 POST /send - Forward Message to External API
 app.post("/send", async (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+
     const { textMessage, number } = req.body;
     console.log(number, "this is message");
 
@@ -58,6 +62,8 @@ app.post("/send", async (req, res) => {
 
 // 🔹 POST /sendMessage - Store Incoming Message
 app.post("/sendMessage", (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+
     const { message } = req.body;
     console.log(message, "message sent to vercel API");
 
@@ -78,6 +84,8 @@ app.post("/sendMessage", (req, res) => {
 
 // 🔹 GET /getMessage - Retrieve Stored Message
 app.get("/getMessage", (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+
     console.log(storedMessage, "storedMessage");
 
     try {
