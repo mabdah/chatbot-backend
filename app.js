@@ -5,7 +5,11 @@ const axios = require("axios");
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "*",  // Allow requests from any origin
+    methods: ["GET", "POST", "OPTIONS"],  // Allowed HTTP methods
+    allowedHeaders: ["Content-Type"],  // Allowed headers
+}));
 
 const PORT = process.env.PORT || 3000;
 const TELERIVET_INCOMING_URL = "https://api.telerivet.com/gateway/PNddded6f1601b45f8/446f0f6b8b/incoming";
@@ -16,14 +20,8 @@ app.get("/", (req, res) => {
 let storedMessage = ""; // Global variable to store the message
 app.post("/send", async (req, res) => {
     const { textMessage, number } = req.body;
-    console.log(number, "this is message")
-    if (!number) {
-        var uniqueTestNumber = "555" + Math.floor(1000 + Math.random() * 9000);
-    } else {
-        var uniqueTestNumber = number
-    }
-    var name = "ChatBot test"
-    console.log(`Received uniqueTestNumber: ${uniqueTestNumber}`);
+    const uniqueTestNumber = number || "555" + Math.floor(1000 + Math.random() * 9000);
+    const name = "ChatBot test";
     try {
         // Forward message to Telerivet
         const response = await axios.post(TELERIVET_INCOMING_URL, {
