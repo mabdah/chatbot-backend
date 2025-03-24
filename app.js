@@ -47,12 +47,12 @@ app.post("/sendMessage", (req, res) => {
     storedMessage = message; // Store the message
     console.log("Message received:", storedMessage);
 
-    try {
-        res.json({ success: true, value: storedMessage });
-    } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ error: "Connection failed" });
-    }
+    // try {
+    //     res.json({ success: true, value: storedMessage });
+    // } catch (error) {
+    //     console.error("Error:", error);
+    //     res.status(500).json({ error: "Connection failed" });
+    // }
 });
 
 app.get("/getMessage", (req, res) => {
