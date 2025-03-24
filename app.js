@@ -16,7 +16,7 @@ let storedMessage = ""; // Global variable to store the message
 
 app.post("/sendMessage", (req, res) => {
     const { message } = req.body;
-
+    console.log(message, "message sent to vercel api")
     if (!message) {
         return res.status(400).json({ error: "Message is required" });
     }
