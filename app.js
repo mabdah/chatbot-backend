@@ -18,14 +18,6 @@ app.use(cors({
 const PORT = process.env.PORT || 3000;
 const TELERIVET_INCOMING_URL = "https://api.telerivet.com/gateway/PNddded6f1601b45f8/446f0f6b8b/incoming";
 
-// 🔹 Explicitly Handle OPTIONS Requests for /send and /getMessage
-app.options(["/send", "/getMessage"], (req, res) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-    res.status(200).send();  // Explicitly return 200 OK
-});
-
 // 🔹 Root Route
 app.get("/", (req, res) => {
     res.send("Hello, ChatBot Backend is running!");
