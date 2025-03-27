@@ -58,8 +58,8 @@ app.post("/send", async (req, res) => {
 app.post("/sendMessage", (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
 
-    const { message } = req.body;
-    console.log(message, "message sent to vercel API");
+    const { message, bot_web_id } = req.body;
+    console.log(message, bot_web_id, "message sent to vercel API");
 
     if (!message) {
         return res.status(400).json({ error: "Message is required" });
