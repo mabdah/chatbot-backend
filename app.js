@@ -86,7 +86,7 @@ app.get("/getMessage", (req, res) => {
 
     try {
         if (storedMessage) {
-            res.json({ success: true, value: { message: storedMessage, bot_web_id: bot_web_id } });
+            res.json({ success: true, value: { message: storedMessage, bot_web_id: storedBotWebId } });
         } else {
             res.json({ success: false, message: "No messages available" });
         }
