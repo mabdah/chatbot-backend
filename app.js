@@ -24,6 +24,7 @@ app.get("/", (req, res) => {
 });
 
 let storedMessage = "";  // Global variable to store the message
+let storedBotWebId = ""
 
 // 🔹 POST /send - Forward Message to External API
 app.post("/send", async (req, res) => {
@@ -66,6 +67,7 @@ app.post("/sendMessage", (req, res) => {
     }
 
     storedMessage = message;  // Store the message globally
+    storedBotWebId = bot_web_id
     console.log("Message received:", storedMessage);
 
     try {
@@ -84,7 +86,7 @@ app.get("/getMessage", (req, res) => {
 
     try {
         if (storedMessage) {
-            res.json({ success: true, value: storedMessage });
+            res.json({ success: true, value: { message: storedMessage, bot_web_id: bot_web_id } });
         } else {
             res.json({ success: false, message: "No messages available" });
         }
