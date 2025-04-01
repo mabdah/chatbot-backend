@@ -23,10 +23,9 @@ app.get("/", (req, res) => {
     res.send("Hello, ChatBot Backend is running!");
 });
 
-let storedData = {
-    message: "",
-    bot_web_id: "",
-};
+let storedMessage = "";  // Global variable to store the message
+let storedBotWebId = ""
+
 // 🔹 POST /send - Forward Message to External API
 app.post("/send", async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -63,15 +62,16 @@ app.post("/sendMessage", (req, res) => {
     const { message, bot_web_id } = req.body;
     console.log(message, bot_web_id, "message sent to vercel API");
 
-    if (!message || !bot_web_id) {
-        return res.status(400).json({ error: "Message and bot id is required" });
+    if (!message) {
+        return res.status(400).json({ error: "Message is required" });
     }
 
-    storedData = { message, bot_web_id };
-    console.log("Message received:", storedData);
+    storedMessage = message;  // Store the message globally
+    storedBotWebId = bot_web_id
+    console.log("Message received:", storedMessage);
 
     try {
-        res.json({ success: true, value: storedData });
+        res.json({ success: true, value: storedMessage });
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ error: "Connection failed" });
@@ -82,11 +82,11 @@ app.post("/sendMessage", (req, res) => {
 app.get("/getMessage", (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
 
-    console.log(storedData, "storedData");
+    console.log(storedMessage, "storedMessage");
 
     try {
-        if (storedData) {
-            res.json({ success: true, value: storedData });
+        if (storedMessage) {
+            res.json({ success: true, value: { message: storedMessage, bot_web_id: storedBotWebId } });
         } else {
             res.json({ success: false, message: "No messages available" });
         }
