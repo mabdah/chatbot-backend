@@ -65,7 +65,7 @@ app.post("/sendMessage", (req, res) => {
     if (!message) {
         return res.status(400).json({ error: "Message is required" });
     }
-
+    console.log(message, "hey message")
     storedMessage = message;  // Store the message globally
     storedBotWebId = bot_web_id
     console.log("Message received:", storedMessage);
