@@ -23,7 +23,11 @@ app.get("/", (req, res) => {
     res.send("Hello, ChatBot Backend is running!");
 });
 
-let storedMessage = "";  // Global variable to store the message
+let storedMessage = {
+    content: "",
+    url: "",
+    image: ""
+};  // Global variable to store the message
 let storedBotWebId = ""
 
 // 🔹 POST /send - Forward Message to External API
@@ -65,8 +69,13 @@ app.post("/sendMessage", (req, res) => {
     if (!message) {
         return res.status(400).json({ error: "Message is required" });
     }
-    console.log(message, "hey message")
-    storedMessage = message;  // Store the message globally
+
+    storedMessage = {
+        content: message?.content,
+        url: message?.url,
+        image: message?.image
+    };  // Store the message globally
+
     storedBotWebId = bot_web_id
     console.log("Message received:", storedMessage);
 
@@ -86,7 +95,7 @@ app.get("/getMessage", (req, res) => {
 
     try {
         if (storedMessage) {
-            res.json({ success: true, value: { message: storedMessage, bot_web_id: storedBotWebId } });
+            res.json({ success: true, value: { message: storedMessage.content, bot_web_id: storedBotWebId, url: storedMessage?.url, image: storedMessage?.image } });
         } else {
             res.json({ success: false, message: "No messages available" });
         }
