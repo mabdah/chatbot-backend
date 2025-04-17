@@ -73,7 +73,7 @@ app.post("/sendMessage", (req, res) => {
     storedMessage = {
         content: message?.content,
         url: message?.url,
-        image: message?.image
+        media: message?.media
     };  // Store the message globally
 
     storedBotWebId = bot_web_id
@@ -95,7 +95,7 @@ app.get("/getMessage", (req, res) => {
 
     try {
         if (storedMessage) {
-            res.json({ success: true, value: { message: storedMessage.content, bot_web_id: storedBotWebId, url: storedMessage?.url, image: storedMessage?.image } });
+            res.json({ success: true, value: { message: storedMessage.content, bot_web_id: storedBotWebId, url: storedMessage?.url, media: storedMessage?.image } });
         } else {
             res.json({ success: false, message: "No messages available" });
         }
