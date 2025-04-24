@@ -26,7 +26,8 @@ app.get("/", (req, res) => {
 let storedMessage = {
     content: "",
     url: "",
-    image: ""
+    image: "",
+    quick_replies: ""
 };  // Global variable to store the message
 let storedBotWebId = ""
 
@@ -74,7 +75,8 @@ app.post("/sendMessage", (req, res) => {
     storedMessage = {
         content: message?.content,
         url: message?.url,
-        media: message?.media
+        media: message?.media,
+        quick_replies: message?.quick_replies
     };  // Store the message globally
 
     storedBotWebId = bot_web_id
@@ -96,7 +98,7 @@ app.get("/getMessage", (req, res) => {
 
     try {
         if (storedMessage) {
-            res.json({ success: true, value: { message: storedMessage.content, bot_web_id: storedBotWebId, url: storedMessage?.url, media: storedMessage?.media } });
+            res.json({ success: true, value: { message: storedMessage.content, bot_web_id: storedBotWebId, url: storedMessage?.url, media: storedMessage?.media, quick_replies: storedMessage?.quick_replies } });
         } else {
             res.json({ success: false, message: "No messages available" });
         }
