@@ -51,6 +51,7 @@ app.post("/send", async (req, res) => {
         });
 
         const responseData = JSON.parse(response.config.data);
+        console.log(responseData, "this is responseData")
         return res.json({ success: true, value: { uniqueTestNumber: responseData.from_number, message: responseData.content } });
 
     } catch (error) {
