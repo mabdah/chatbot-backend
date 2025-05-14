@@ -2,10 +2,19 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const http = require("http");
+const { Server } = require("socket.io")
 
 const app = express();
-app.use(express.json());
+const server = http.createServer(app);
 
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+})
+app.use(express.json());
 // 🔹 Global CORS Middleware
 app.use(cors({
     origin: "*",  // Allow requests from any domain
@@ -23,13 +32,13 @@ app.get("/", (req, res) => {
     res.send("Hello, ChatBot Backend is running!");
 });
 
-let storedMessage = {
-    content: "",
-    url: "",
-    image: "",
-    quick_replies: ""
-};  // Global variable to store the message
-let storedBotWebId = ""
+// let storedMessage = {
+//     content: "",
+//     url: "",
+//     image: "",
+//     quick_replies: ""
+// };  // Global variable to store the message
+// let storedBotWebId = ""
 
 // 🔹 POST /send - Forward Message to External API
 app.post("/send", async (req, res) => {
@@ -44,7 +53,6 @@ app.post("/send", async (req, res) => {
     console.log(`Received uniqueTestNumber: ${uniqueTestNumber}`);
 
     try {
-        // Forward message to Telerivet API
         const response = await axios.post(TELERIVET_INCOMING_URL, {
             name: name,
             from_number: uniqueTestNumber,
@@ -52,7 +60,7 @@ app.post("/send", async (req, res) => {
         });
 
         const responseData = JSON.parse(response.config.data);
-        console.log(responseData, "this is responseData")
+        console.log(responseData, "this is responseData");
         return res.json({ success: true, value: { uniqueTestNumber: responseData.from_number, message: responseData.content } });
 
     } catch (error) {
@@ -61,54 +69,97 @@ app.post("/send", async (req, res) => {
     }
 });
 
-// 🔹 POST /sendMessage - Store Incoming Message
 app.post("/sendMessage", (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
 
     const { message, bot_web_id } = req.body;
-    console.log(message, bot_web_id, "message sent to vercel API");
+    console.log(message, bot_web_id, "message sent to backend");
 
     if (!message) {
         return res.status(400).json({ error: "Message is required" });
     }
 
-    storedMessage = {
-        content: message?.content,
+    const payload = {
+        message: message?.content,
         url: message?.url,
         media: message?.media,
-        quick_replies: message?.quick_replies
-    };  // Store the message globally
+        quick_replies: message?.quick_replies,
+        bot_web_id
+    };
 
-    storedBotWebId = bot_web_id
-    console.log("Message received:", storedMessage);
+    // Emit message to all connected WebSocket clients
+    io.emit("new_message", payload);
 
     try {
-        res.json({ success: true, value: storedMessage });
+        res.json({ success: true });
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ error: "Connection failed" });
     }
 });
 
-// 🔹 GET /getMessage - Retrieve Stored Message
-app.get("/getMessage", (req, res) => {
-    res.header("Access-Control-Allow-Origin", "*");
+// 🔹 WebSocket Connections
+io.on("connection", (socket) => {
+    console.log("🟢 Client connected:", socket.id);
 
-    console.log(storedMessage, "storedMessage");
-
-    try {
-        if (storedMessage) {
-            res.json({ success: true, value: { message: storedMessage.content, bot_web_id: storedBotWebId, url: storedMessage?.url, media: storedMessage?.media, quick_replies: storedMessage?.quick_replies } });
-        } else {
-            res.json({ success: false, message: "No messages available" });
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ error: "Connection failed" });
-    }
+    socket.on("disconnect", () => {
+        console.log("🔴 Client disconnected:", socket.id);
+    });
 });
 
-// 🔹 Start the Express Server
-app.listen(PORT, () => {
+// 🔹 Start Server
+server.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
 });
+
+// 🔹 POST /sendMessage - Store Incoming Message
+// app.post("/sendMessage", (req, res) => {
+//     res.header("Access-Control-Allow-Origin", "*");
+
+//     const { message, bot_web_id } = req.body;
+//     console.log(message, bot_web_id, "message sent to vercel API");
+
+//     if (!message) {
+//         return res.status(400).json({ error: "Message is required" });
+//     }
+
+//     storedMessage = {
+//         content: message?.content,
+//         url: message?.url,
+//         media: message?.media,
+//         quick_replies: message?.quick_replies
+//     };  // Store the message globally
+
+//     storedBotWebId = bot_web_id
+//     console.log("Message received:", storedMessage);
+
+//     try {
+//         res.json({ success: true, value: storedMessage });
+//     } catch (error) {
+//         console.error("Error:", error);
+//         res.status(500).json({ error: "Connection failed" });
+//     }
+// });
+
+// 🔹 GET /getMessage - Retrieve Stored Message
+// app.get("/getMessage", (req, res) => {
+//     res.header("Access-Control-Allow-Origin", "*");
+
+//     console.log(storedMessage, "storedMessage");
+
+//     try {
+//         if (storedMessage) {
+//             res.json({ success: true, value: { message: storedMessage.content, bot_web_id: storedBotWebId, url: storedMessage?.url, media: storedMessage?.media, quick_replies: storedMessage?.quick_replies } });
+//         } else {
+//             res.json({ success: false, message: "No messages available" });
+//         }
+//     } catch (error) {
+//         console.error("Error:", error);
+//         res.status(500).json({ error: "Connection failed" });
+//     }
+// });
+
+// 🔹 Start the Express Server
+// app.listen(PORT, () => {
+//     console.log(`🚀 Server is running on port ${PORT}`);
+// });
